@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rogue Wake</title>
+<style>
+  html, body { margin:0; padding:0; background:#111; color:#eee;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  h1 { margin:12px 0 4px; font-size:18px; letter-spacing:2px; }
+  p { margin:0 0 16px; font-size:12px; opacity:.7; }
+  #canvas { image-rendering: pixelated; image-rendering: crisp-edges;
+    background:#000; width:512px; height:512px; border:1px solid #333; }
+  #status { margin-top:12px; font-size:12px; opacity:.7; min-height:18px; }
+  #controls { margin-top:8px; font-size:11px; opacity:.55; max-width:520px; text-align:center; }
+</style>
+</head>
+<body>
+<h1>ROGUE WAKE</h1>
+<p>PICO-8 naval tactics roguelite</p>
+<canvas id="canvas" width="512" height="512" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+<div id="status">Loading…</div>
+<div id="controls">
+  Arrows / WASD = move · Z/X or N/M = action · Enter = pause · Click canvas to focus
+</div>
+<script>
+  var statusEl = document.getElementById('status');
+  var Module = {
+    canvas: (function() {
+      var c = document.getElementById('canvas');
+      c.addEventListener('webglcontextlost', function(e) {
+        alert('WebGL context lost. Please reload.'); e.preventDefault();
+      }, false);
+      return c;
+    })(),
+    arguments: ['-w', '512', '-h', '512', '/rogue_wake.p8'],
+    preRun: [function() {
+      if (typeof ENV !== 'undefined') { ENV.HOME = '/home/web_user'; }
+      try { FS.mkdirTree('/home/web_user'); } catch(e) {}
+    }],
+    print: function(t) { console.log(t); },
+    printErr: function(t) { console.warn(t); },
+    setStatus: function(t) { statusEl.textContent = t || ''; },
+    totalDependencies: 0,
+    monitorRunDependencies: function(left) {
+      this.totalDependencies = Math.max(this.totalDependencies, left);
+      Module.setStatus(left
+        ? 'Loading (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')'
+        : 'Ready. Click the canvas.');
+    },
+  };
+  Module.setStatus('Downloading…');
+  window.onerror = function(e) { Module.setStatus('Error — see console.'); };
+</script>
+{{{ SCRIPT }}}
+</body>
+</html>

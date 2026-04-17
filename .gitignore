@@ -1,0 +1,36 @@
+.DS_Store
+*.bak
+*.swp
+*.swo
+
+# Internal / AI collaboration artifacts (not for public repo)
+AGENTS.md
+manifest.json
+memory/
+prompts/
+.claude/
+.claude-memory/
+CLAUDE.md
+
+# Internal design docs (keep locally, don't publish)
+docs/ARCHITECTURE.md
+docs/CONTENT_BACKLOG.md
+docs/EXPORT.md
+docs/GAME_SPEC.md
+docs/PLAYTEST_QUESTIONS.md
+docs/ROADMAP.md
+docs/VISUAL_BIBLE.md
+
+# Large build dependencies — rebuilt via build/bootstrap.sh
+build/emsdk/
+build/fake-08/
+build/web_out/
+
+# Playwright diagnostic screenshots from the web-build bring-up
+web-*.png
+.playwright-mcp/
+
+# Cart backups / legacy scaffolds
+cart/rogue_wake.backup_*.p8
+cart/*.bak
+cart/*.bak/

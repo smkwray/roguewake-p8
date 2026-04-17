@@ -1,0 +1,34 @@
+diff --git a/platform/SDL2Common/source/sdl2basehost.cpp b/platform/SDL2Common/source/sdl2basehost.cpp
+index 07d568b..9d39077 100644
+--- a/platform/SDL2Common/source/sdl2basehost.cpp
++++ b/platform/SDL2Common/source/sdl2basehost.cpp
+@@ -186,9 +186,13 @@ void Host::setPlatformParams(
+ 
+ 
+ void Host::oneTimeSetup(Audio* audio){
++#ifdef __EMSCRIPTEN__
++    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) != 0)
++#else
+     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
++#endif
+     {
+-        fprintf(stderr, "SDL could not initialize\n");
++        fprintf(stderr, "SDL could not initialize: %s\n", SDL_GetError());
+         return;
+     }
+ 
+@@ -324,11 +328,13 @@ void Host::waitForTargetFps(){
+ 
+ 
+ void Host::drawFrame(uint8_t* picoFb, uint8_t* screenPaletteMap, uint8_t drawMode){
++    if (!renderer || !texture) return;
+     //clear screen to all black
+     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+     SDL_RenderClear(renderer);
+ 
+-    SDL_LockTexture(texture, NULL, &pixels, &pitch);
++    if (SDL_LockTexture(texture, NULL, &pixels, &pitch) != 0) return;
++    if (!pixels) return;
+ 
+     for (int y = 0; y < PicoScreenHeight; y ++){
+         for (int x = 0; x < PicoScreenWidth; x ++){

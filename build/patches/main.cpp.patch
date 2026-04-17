@@ -1,0 +1,66 @@
+diff --git a/source/main.cpp b/source/main.cpp
+index b093c1e..c0d6a9b 100644
+--- a/source/main.cpp
++++ b/source/main.cpp
+@@ -10,6 +10,7 @@
+ #include "logger.h"
+ #include "host.h"
+ #include "hostVmShared.h"
++#include "PicoRam.h"
+ 
+ #if __VITA__
+ 
+@@ -17,6 +18,38 @@
+ 
+ #endif
+ 
++#ifdef __EMSCRIPTEN__
++#include <emscripten.h>
++
++static Host* g_host = nullptr;
++static Vm* g_vm = nullptr;
++static PicoRam* g_memory = nullptr;
++static double g_last_step_ms = 0.0;
++static const double FRAME_MS = 1000.0 / 30.0;
++
++static void emscripten_step() {
++    if (!g_host || !g_vm) return;
++    if (g_host->shouldQuit()) {
++        emscripten_cancel_main_loop();
++        return;
++    }
++    double now = emscripten_get_now();
++    if (g_last_step_ms > 0.0 && (now - g_last_step_ms) < (FRAME_MS - 1.0)) {
++        return;
++    }
++    g_last_step_ms = now;
++    g_host->changeStretch();
++    g_vm->Step();
++    uint8_t* picoFb = g_vm->GetPicoInteralFb();
++    uint8_t* screenPaletteMap = g_vm->GetScreenPaletteMap();
++    g_host->drawFrame(picoFb, screenPaletteMap, g_memory->drawState.drawMode);
++    if (g_host->shouldFillAudioBuff()) {
++        g_vm->FillAudioBuffer(g_host->getAudioBufferPointer(), 0, g_host->getAudioBufferSize());
++        g_host->playFilledAudioBuffer();
++    }
++}
++#endif
++
+ 
+ 
+ int main(int argc, char* argv[])
+@@ -96,7 +129,14 @@ int main(int argc, char* argv[])
+ 	// Main loop
+ 	Logger_Write("Starting main loop\n");
+ 
++#ifdef __EMSCRIPTEN__
++	g_host = host;
++	g_vm = vm;
++	g_memory = memory;
++	emscripten_set_main_loop(emscripten_step, 0, 1);
++#else
+ 	vm->GameLoop();
++#endif
+ 
+ 	Logger_Write("Turning off vm and exiting logger\n");
+ 	vm->CloseCart();
