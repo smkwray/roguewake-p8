@@ -34,3 +34,5 @@ web-*.png
 cart/rogue_wake.backup_*.p8
 cart/*.bak
 cart/*.bak/
+
+.private-denylist
