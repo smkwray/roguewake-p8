@@ -119,6 +119,6 @@ The web build applies the patches in `build/patches/` so FAKE-08 runs under emsc
 
 ## License
 
-Game cart (`cart/rogue_wake.p8`) and supporting code in this repository: all rights reserved by the author, except where individual files carry their own license notice.
+MIT. See [LICENSE](LICENSE).
 
 FAKE-08 source (fetched by the bootstrap script, not included in this repo) is licensed per its own [LICENSE](https://github.com/jtothebell/fake-08/blob/master/LICENSE.MD).
